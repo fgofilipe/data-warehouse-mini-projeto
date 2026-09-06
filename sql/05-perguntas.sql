@@ -30,16 +30,14 @@ ORDER BY l.porte;
 -- P2 - QUAL CATEGORIA CONCENTRA O FATURAMENTO?
 
 SELECT
-    c.nome_categoria,
+    COALESCE(c.nome_categoria, 'Nao Informado') AS nome_categoria,
     ROUND(SUM(f.vl_liquido)) AS faturamento,
     ROUND(
-        100.0 * SUM(f.vl_liquido)
-        / (SELECT SUM(vl_liquido) FROM fato_pedido),
+        100.0 * SUM(f.vl_liquido) / NULLIF((SELECT SUM(vl_liquido) FROM fato_pedido), 0),
         2
     ) AS percentual_do_total
 FROM fato_pedido f
-JOIN dim_categoria c
-    ON c.sk_categoria = f.sk_categoria
+LEFT JOIN dim_categoria c ON c.sk_categoria = f.sk_categoria
 GROUP BY c.nome_categoria
 ORDER BY faturamento DESC;
 
@@ -84,34 +82,18 @@ ORDER BY percentual_do_faturamento DESC;
 -- P4 - QUAL PRACA DE ATENDIMENTO CONCENTRA O FATURAMENTO?
 
 SELECT
-    pr.nome_praca,
+    COALESCE(pr.nome_praca, 'Nao Informado') AS nome_praca,
     pr.domicilios_com_pet,
-
+    ROUND(SUM(f.vl_liquido * COALESCE(b.fator_publico, 1))) AS faturamento_rateado,
     ROUND(
-        SUM(f.vl_liquido * b.fator_publico)
-    ) AS faturamento_rateado,
-
-    ROUND(
-        SUM(f.vl_liquido * b.fator_publico)
-        / NULLIF(pr.domicilios_com_pet, 0),
+        SUM(f.vl_liquido * COALESCE(b.fator_publico, 1)) / NULLIF(pr.domicilios_com_pet, 0), 
         2
     ) AS faturamento_por_domicilio
-
 FROM fato_pedido f
-
-JOIN dim_loja l
-    ON l.sk_loja = f.sk_loja
-
-JOIN bridge_loja_praca b
-    ON b.cod_loja = l.cod_loja
-
-JOIN dim_praca pr
-    ON pr.sk_praca = b.sk_praca
-
-GROUP BY
-    pr.nome_praca,
-    pr.domicilios_com_pet
-
+LEFT JOIN dim_loja l          ON l.sk_loja = f.sk_loja
+LEFT JOIN bridge_loja_praca b ON b.cod_loja = l.cod_loja
+LEFT JOIN dim_praca pr         ON pr.sk_praca = b.sk_praca
+GROUP BY pr.nome_praca, pr.domicilios_com_pet
 ORDER BY faturamento_rateado DESC;
 
 
