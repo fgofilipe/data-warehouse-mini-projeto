@@ -1,6 +1,6 @@
 -- =====================================================================================
--- ARQUIVO 5: AS CINCO PERGUNTAS DE NEGOCIO
--- Case: Pata Amiga - rede de petshops de SC | PostgreSQL 16
+--  ARQUIVO 5: AS CINCO PERGUNTAS DE NEGOCIO
+--  Case: Pata Amiga - rede de petshops de SC | PostgreSQL 16
 -- =====================================================================================
 
 -- Rode depois de: 04-fato.sql
@@ -37,7 +37,8 @@ SELECT
         2
     ) AS percentual_do_total
 FROM fato_pedido f
-LEFT JOIN dim_categoria c ON c.sk_categoria = f.sk_categoria
+LEFT JOIN dim_categoria c
+    ON c.sk_categoria = f.sk_categoria
 GROUP BY c.nome_categoria
 ORDER BY faturamento DESC;
 
@@ -82,24 +83,40 @@ ORDER BY percentual_do_faturamento DESC;
 -- P4 - QUAL PRACA DE ATENDIMENTO CONCENTRA O FATURAMENTO?
 
 SELECT
-    COALESCE(pr.nome_praca, 'Nao Informado') AS nome_praca,
+    pr.nome_praca,
     pr.domicilios_com_pet,
-    ROUND(SUM(f.vl_liquido * COALESCE(b.fator_publico, 1))) AS faturamento_rateado,
+
     ROUND(
-        SUM(f.vl_liquido * COALESCE(b.fator_publico, 1)) / NULLIF(pr.domicilios_com_pet, 0), 
+        SUM(f.vl_liquido * b.fator_publico)
+    ) AS faturamento_rateado,
+
+    ROUND(
+        SUM(f.vl_liquido * b.fator_publico)
+        / NULLIF(pr.domicilios_com_pet, 0), 
         2
     ) AS faturamento_por_domicilio
-FROM fato_pedido f
-LEFT JOIN dim_loja l          ON l.sk_loja = f.sk_loja
-LEFT JOIN bridge_loja_praca b ON b.cod_loja = l.cod_loja
-LEFT JOIN dim_praca pr         ON pr.sk_praca = b.sk_praca
-GROUP BY pr.nome_praca, pr.domicilios_com_pet
-ORDER BY faturamento_rateado DESC;
 
+FROM fato_pedido f
+
+JOIN dim_loja l 
+    ON l.sk_loja = f.sk_loja
+
+JOIN bridge_loja_praca b 
+    ON b.cod_loja = l.cod_loja
+
+JOIN dim_praca pr 
+    ON pr.sk_praca = b.sk_praca
+
+GROUP BY 
+    pr.nome_praca, 
+    pr.domicilios_com_pet
+
+ORDER BY faturamento_rateado DESC;
 
 -- ===============================
 -- P5 - ONDE ABRIR A PROXIMA LOJA?
 
+-- (a) Ranking por densidade de itens vendidos por 1.000 habitantes
 SELECT
     l.nome_loja,
     l.cidade,
@@ -133,3 +150,51 @@ GROUP BY
 ORDER BY
     itens_por_mil_habitantes DESC,
     tempo_medio_entrega_dias ASC;
+
+
+-- (b) Faturamento por faixa de franquia atual
+
+SELECT
+    l.faixa_franquia, 
+    COUNT(f.numero_pedido) AS total_pedidos,
+    ROUND(SUM(f.vl_liquido), 2) AS faturamento_total,
+    ROUND(AVG(f.vl_liquido), 2) AS ticket_medio
+
+FROM fato_pedido f
+
+JOIN dim_loja l 
+    ON l.sk_loja = f.sk_loja
+
+WHERE l.sk_loja <> -1
+
+GROUP BY l.faixa_franquia
+
+ORDER BY faturamento_total DESC;
+
+
+-- (c) Mapeamento do que ficou de fora das analises
+
+SELECT
+    'Pedidos sem Loja Identificada' AS tipo_limitacao,
+    COUNT(*) AS total_registros,
+    ROUND(SUM(vl_liquido), 2) AS faturamento_impactado
+FROM fato_pedido
+WHERE sk_loja = -1
+
+UNION ALL
+
+SELECT
+    'Entregas Nao Concluidas (Sem DtEntrega)' AS tipo_limitacao,
+    COUNT(*) AS total_registros,
+    ROUND(SUM(vl_liquido), 2) AS faturamento_impactado
+FROM fato_pedido
+WHERE sk_tempo_entrega = -1
+
+UNION ALL
+
+SELECT
+    'Pedidos com Itens nulos ou nao informados' AS tipo_limitacao,
+    COUNT(*) AS total_registros,
+    ROUND(SUM(vl_liquido), 2) AS faturamento_impactado
+FROM fato_pedido
+WHERE qt_itens IS NULL;
