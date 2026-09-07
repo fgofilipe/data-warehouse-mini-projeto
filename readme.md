@@ -2,7 +2,7 @@
 
 Filipe de Oliveira Gomes - Modulo 02 / Curso de Análise de Dados
 
-link para video apresentação: - Standby 
+link para video apresentação: - https://www.loom.com/share/cfb3bab41de34baf9f4198ddc1abc680
 
 
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?style=flat\&logo=postgresql\&logoColor=white)
@@ -63,26 +63,6 @@ O modelo desenvolvido utiliza uma arquitetura dimensional baseada em **Star Sche
 A tabela fato possui **4.044 registros**, mantendo um registro para cada pedido existente na origem.
 
 ![Modelo Dimensional](data/modelo-dimensional.png)
-
-```text
-                         dim_tempo
-                       /           \
-                      /             \
-             data pedido       data entrega
-                    \               /
-                     \             /
-                      ┌───────────────┐
-                      │  fato_pedido  │
-                      │               │
-                      │ 1 pedido/linha│
-                      └───────────────┘
-                       /      |       \
-                      /       |        \
-                     /        |         \
-              dim_loja  dim_categoria  bridge_loja_praca
-                                               |
-                                           dim_praca
-```
 
 ---
 
@@ -707,4 +687,7 @@ A partir desse modelo foi possível identificar gargalos logísticos, analisar a
 O projeto também evidencia a importância de conhecer as **limitações dos dados** antes de transformar indicadores em decisões de negócio.
 
 > **Dados bem tratados geram análises mais confiáveis e decisões de negócio mais conscientes.** 
-        
+
+
+ Linkedin: https://www.linkedin.com/in/filipe-oliveirahrs/
+ Github: https://github.com/fgofilipe    
