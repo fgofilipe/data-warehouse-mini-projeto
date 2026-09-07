@@ -62,7 +62,7 @@ O modelo desenvolvido utiliza uma arquitetura dimensional baseada em **Star Sche
 
 A tabela fato possui **4.044 registros**, mantendo um registro para cada pedido existente na origem.
 
-![Modelo Dimensional](docs/modelo-dimensional.png)
+![Modelo Dimensional](data/modelo-dimensional.png)
 
 ```text
                          dim_tempo
