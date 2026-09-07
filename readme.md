@@ -2,7 +2,7 @@
 
 ##Filipe de Oliveira Gomes
 
-link para video apresentação: 
+link para video apresentação: - Standby
 
 
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?style=flat\&logo=postgresql\&logoColor=white)
