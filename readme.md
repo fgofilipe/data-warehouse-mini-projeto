@@ -1,8 +1,8 @@
 # 🐾 Pata Amiga — Data Warehouse
 
-##Filipe de Oliveira Gomes
+Filipe de Oliveira Gomes - Modulo 02 / Curso de Análise de Dados
 
-link para video apresentação: - Standby
+link para video apresentação: - Standby 
 
 
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?style=flat\&logo=postgresql\&logoColor=white)

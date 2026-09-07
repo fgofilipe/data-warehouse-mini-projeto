@@ -42,6 +42,19 @@ LEFT JOIN dim_categoria c
 GROUP BY c.nome_categoria
 ORDER BY faturamento DESC;
 
+-- P2b - a categoria campeã é a mesma nos tres portes de loja?
+SELECT
+    l.porte,
+    COALESCE(c.nome_categoria, 'Nao Informado') AS nome_categoria,
+    ROUND(SUM(f.vl_liquido)) AS faturamento
+FROM fato_pedido f
+JOIN dim_loja l
+    ON l.sk_loja = f.sk_loja
+LEFT JOIN dim_categoria c
+    ON c.sk_categoria = f.sk_categoria
+GROUP BY l.porte, c.nome_categoria
+ORDER BY l.porte, faturamento DESC;
+
 
 -- =============================================
 -- P3 - O DESCONTO FUNCIONA IGUAL EM TODO CANAL?
@@ -197,4 +210,13 @@ SELECT
     COUNT(*) AS total_registros,
     ROUND(SUM(vl_liquido), 2) AS faturamento_impactado
 FROM fato_pedido
-WHERE qt_itens IS NULL;
+WHERE qt_itens IS NULL
+
+UNION ALL
+
+SELECT
+    'Pedidos com Valor Liquido nao informado' AS tipo_limitacao,
+    COUNT(*) AS total_registros,
+    ROUND(SUM(vl_liquido)) AS faturamento_impactado
+FROM fato_pedido
+WHERE vl_liquido IS NULL;

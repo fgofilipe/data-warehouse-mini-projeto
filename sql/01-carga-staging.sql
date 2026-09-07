@@ -4242,3 +4242,5 @@ SELECT
     (SELECT COUNT(*) FROM stg_pedido WHERE "DtNotaFiscal" = '') AS marcos_nota_em_branco,
     (SELECT COUNT(*) FROM stg_pedido WHERE "Dt_Despacho_Transportadora" = '') AS marcos_despacho_em_branco,
     (SELECT COUNT(*) FROM stg_pedido WHERE "DtEntregaCliente" = '') AS marcos_entrega_em_branco;
+
+    
